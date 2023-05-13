@@ -13,9 +13,9 @@ def Binarize_image():
     parser.add_argument('--m', type=str, default='PSNR', help='metric: PSNR, DRD')
     parser.add_argument('--k', type=int, default=0.2, help='parametr k for method Niblack')
     parser.add_argument('--a', type=int, default=10, help='parametr a for method Niblack')
-    parser.add_argument('--w', type=int, default=20, help='window size')
-    parser.add_argument('--s', type=int, default=20, help='parametr scale_factor for method Niblack_multiscale')
-    parser.add_argument('--mw', type=int, default=20, help='parametr min_window for method Niblack_multiscale')
+    parser.add_argument('--w', type=int, default=150, help='window size')
+    parser.add_argument('--s', type=int, default=0.1, help='parametr scale_factor for method Niblack_multiscale')
+    parser.add_argument('--mw', type=int, default=250, help='parametr min_window for method Niblack_multiscale')
     parser.add_argument('--Mw', type=int, default=1500, help='parametr k for method Niblack_multiscale')
     args = parser.parse_args()
     try:
@@ -41,7 +41,7 @@ def Binarize_image():
             else:
                 mask = None
 
-            bin_image = binarize(image, method, scale_factor, window_size, min_window_size, max_window_size,  k, a)
+            bin_image = binarize(image, method, window_size, min_window_size, max_window_size,  k, a,scale_factor)
             cv2.imwrite(out_path + img_path.split('/')[-1], bin_image)
             number += 1
             if mask is not None:

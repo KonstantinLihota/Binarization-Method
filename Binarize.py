@@ -11,8 +11,6 @@ class BinarizationMethod():
     NIBLACK_MULTISCALE = 'Niblack_multiscale'
 
 
-
-
 def otsu_thresholding(image):
     hist, bins = np.histogram(image, bins=256, range=(0, 255))
     n_pixels = np.sum(hist)
@@ -88,19 +86,28 @@ def niblack_threshold(img, window_size, k, a=10):
     return mask.astype(np.uint8) * 255
 
 
-def adaptive_niblack_threshold(img, min_window_size=10, max_window_size=500, k=0.2, a=10, scale_factor= 0.5):
+def adaptive_niblack_threshold(img, min_window_size=10, max_window_size=500, k=0.2, a=10, scale_factor=0.2):
     thresholds = []
-    for window_size in range(min_window_size, max_window_size, 2):
+    start_img =img
+    img_shape = img.shape
+    for window_size in range(min_window_size, max_window_size, 100):
         threshold = niblack_threshold(img, window_size, k, a)
         thresholds.append(threshold)
-        img = cv2.resize(img, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_LINEAR)
-    best_thresholds = np.zeros(img.shape, dtype=np.uint8)
+        if np.min(img.shape) * scale_factor < 10:
+            break
+        #img = cv2.resize(img, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_LINEAR)
+    best_thresholds = np.zeros(img_shape, dtype=np.uint8)
+    best_loss = 0
     for i in range(len(thresholds)):
         threshold = thresholds[i]
-        scaled_threshold = cv2.resize(threshold, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_LINEAR)
-        best_thresholds = np.maximum(best_thresholds, scaled_threshold)
-
+        #scaled_threshold = cv2.resize(threshold, (img_shape[1], img_shape[0]), interpolation=cv2.INTER_LINEAR)
+        loss = PSNR(start_img, threshold)
+        if loss > best_loss:
+            best_loss = loss
+            best_thresholds = threshold
     return best_thresholds
+
+
 def binarize(image, method, window_size, min_window_size, max_window_size, k, a, scale_factor):
     if method == BinarizationMethod.NIBLACK:
         bin_image = niblack_threshold(image, window_size, k, a)
@@ -113,4 +120,3 @@ def binarize(image, method, window_size, min_window_size, max_window_size, k, a,
     else:
         raise ValueError('Unknown binarization method')
     return bin_image
-

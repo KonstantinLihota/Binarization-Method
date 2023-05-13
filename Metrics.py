@@ -3,10 +3,6 @@ import cv2
 import numpy as np
 from math import sqrt
 
-
-
-
-
 def Creat_W(n):
     m = 2 * n + 1
     i_c = (m - 1) // 2
@@ -18,7 +14,6 @@ def Creat_W(n):
     W_sum = np.sum(W)
     W = W / W_sum
     return W
-
 
 def DRDblock(i, j, W, m, g, f):
     xf = f.shape[0]
@@ -36,7 +31,6 @@ def DRDblock(i, j, W, m, g, f):
             Dk[x][y] = abs(Bk[x][y] - value_gk)
     DRDk = np.sum(Dk * W)
     return DRDk
-
 
 def nubm_calc(f, ii, jj, blck):
     startx = (ii - 1) * blck + 1
@@ -56,7 +50,6 @@ def nubm_calc(f, ii, jj, blck):
         if (retb != 0):
             break
     return retb
-
 
 def DRD( pred,gt, n=2, SIZE_BLOCK=8):
     W = Creat_W(n)
@@ -89,7 +82,6 @@ def DRD( pred,gt, n=2, SIZE_BLOCK=8):
     if NUBM == 0:
         NUBM = 1
     return DRDk_sum/NUBM
-
 
 def PSNR(image, label):
 

@@ -11,18 +11,6 @@ class BinarizationMethod():
     NIBLACK_MULTISCALE = 'Niblack_multiscale'
 
 
-def binarize(image, method, mask, window_size, min_window_size, max_window_size, k, a):
-    if method == BinarizationMethod.NIBLACK:
-        bin_image = niblack_threshold(image, window_size, k, a)
-    elif method == BinarizationMethod.OTSU:
-        bin_image = otsu_thresholding(image)
-    elif method == BinarizationMethod.OTSU_L:
-        bin_image = maximum_likelihood_thresholding(image)
-    elif method == BinarizationMethod.NIBLACK_MULTISCALE:
-        bin_image = adaptive_niblack_threshold(image, mask, min_window_size, max_window_size, k, a)
-    else:
-        raise ValueError('Unknown binarization method')
-    return bin_image
 
 
 def otsu_thresholding(image):
@@ -32,8 +20,6 @@ def otsu_thresholding(image):
     norm_hist = hist / n_pixels
 
     # mean = np.mean(img)
-
-    # Вычисляем межклассовую дисперсию для каждого порога
     max_var = 0
     threshold = 0
     for i in range(256):
@@ -54,19 +40,19 @@ def otsu_thresholding(image):
     return mask.astype(np.uint8) * 255
 
 
-def maximum_likelihood_thresholding(image):
+def maximum_likelihood_thresholding(image, threshold=128):
     hist, bins = np.histogram(image, bins=256, range=(0, 255))
     n_pixels = np.sum(hist)
-    group1 = hist[:128]
-    group2 = hist[128:]
+    group1 = hist[:threshold]
+    group2 = hist[threshold:]
 
-    mean1 = np.sum(np.arange(128) * group1) / np.sum(group1)
-    mean2 = np.sum(np.arange(128, 256) * group2) / np.sum(group2)
-    var1 = np.sum((np.arange(128) - mean1) ** 2 * group1) / np.sum(group1)
-    var2 = np.sum((np.arange(128, 256) - mean2) ** 2 * group2) / np.sum(group2)
+    mean1 = np.sum(np.arange(threshold) * group1) / np.sum(group1)
+    mean2 = np.sum(np.arange(threshold, 256) * group2) / np.sum(group2)
+    var1 = np.sum((np.arange(threshold) - mean1) ** 2 * group1) / np.sum(group1)
+    var2 = np.sum((np.arange(threshold, 256) - mean2) ** 2 * group2) / np.sum(group2)
 
-    likelihood1 = norm.pdf(np.arange(128), mean1, np.sqrt(var1))
-    likelihood2 = norm.pdf(np.arange(128, 256), mean2, np.sqrt(var2))
+    likelihood1 = norm.pdf(np.arange(threshold), mean1, np.sqrt(var1))
+    likelihood2 = norm.pdf(np.arange(threshold, 256), mean2, np.sqrt(var2))
 
     threshold = np.argmax(likelihood1 * np.sum(group1) / n_pixels + likelihood2 * np.sum(group2) / n_pixels)
     mask = image > threshold
@@ -102,20 +88,29 @@ def niblack_threshold(img, window_size, k, a=10):
     return mask.astype(np.uint8) * 255
 
 
-def adaptive_niblack_threshold(img, img_label, min_window_size=10, max_window_size=500, k=0.2, a=10):
-    best_ql = 0
-    metric = PSNR
-    m_len =np.max(img.shape)
-    step = (max_window_size - min_window_size)//20
-    for window_size in range(min_window_size, max_window_size, step):
+def adaptive_niblack_threshold(img, min_window_size=10, max_window_size=500, k=0.2, a=10, scale_factor= 0.5):
+    thresholds = []
+    for window_size in range(min_window_size, max_window_size, 2):
+        threshold = niblack_threshold(img, window_size, k, a)
+        thresholds.append(threshold)
+        img = cv2.resize(img, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_LINEAR)
+    best_thresholds = np.zeros(img.shape, dtype=np.uint8)
+    for i in range(len(thresholds)):
+        threshold = thresholds[i]
+        scaled_threshold = cv2.resize(threshold, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_LINEAR)
+        best_thresholds = np.maximum(best_thresholds, scaled_threshold)
 
-        bin_img = niblack_threshold(img, window_size, k, a)
-        qality = metric(bin_img, img_label)
-        if best_ql < qality:
-            best_bin_img = bin_img
-            best_ql = qality
-            # best_window = window_size
-        if window_size>m_len:
-            break
+    return best_thresholds
+def binarize(image, method, window_size, min_window_size, max_window_size, k, a, scale_factor):
+    if method == BinarizationMethod.NIBLACK:
+        bin_image = niblack_threshold(image, window_size, k, a)
+    elif method == BinarizationMethod.OTSU:
+        bin_image = otsu_thresholding(image)
+    elif method == BinarizationMethod.OTSU_L:
+        bin_image = maximum_likelihood_thresholding(image)
+    elif method == BinarizationMethod.NIBLACK_MULTISCALE:
+        bin_image = adaptive_niblack_threshold(image, min_window_size, max_window_size, k, a, scale_factor)
+    else:
+        raise ValueError('Unknown binarization method')
+    return bin_image
 
-    return best_bin_img

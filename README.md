@@ -9,10 +9,10 @@
 Скрипт имеет 3 обязательных параметра:
 
 1)
-    - i путь к папке с изображениями
+   -i путь к папке с изображениями
 2)
-    - o путь к папке сохранения результата
-      3- t название метода бинаризации (Niblack, Otsu, Otsu_l, Niblack_multiscale)
+   -o путь к папке сохранения результата
+3) -t название метода бинаризации (Niblack, Otsu, Otsu_l, Niblack_multiscale)
 
 И 7 необязательных. В них входят парметр выбора метрики,
 путь до папки с эталонами и настройки параметров модели.
@@ -79,14 +79,14 @@ PSNR, тем лучше качество восстановленного изо
 не требует предварительной настройки параметров.
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img1.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/otsu/img1.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img1.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/otsu/img1.png" alt="Резултат"></td>
   </tr>
 </table>
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img4.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/otsu/img4.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img4.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/otsu/img4.png" alt="Резултат"></td>
   </tr>
 </table>
 **Модификация критерия Otsu для неравновесного случая**, 
@@ -112,14 +112,14 @@ population mixture models", направлена на улучшение алг�
 
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img1.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/otsu/img1.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img1.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/otsu/img1.png" alt="Резултат"></td>
   </tr>
 </table>
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img4.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/otsu_l/img4.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img4.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/otsu_l/img4.png" alt="Резултат"></td>
   </tr>
 </table>
 
@@ -188,13 +188,13 @@ population mixture models", направлена на улучшение алг�
 4) Применить полученный порог к каждому пикселю в изображении, чтобы получить бинаризованное изображение
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img4.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/Niblack_multiscale/img4.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img4.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/Niblack_multiscale/img4.png" alt="Резултат"></td>
   </tr>
 </table>
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img2.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/Niblack_multiscale/img2.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img2.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/Niblack_multiscale/img2.png" alt="Резултат"></td>
   </tr>
 </table>

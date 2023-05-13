@@ -164,14 +164,14 @@ population mixture models", направлена на улучшение алг�
 бинаризации.
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img4.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/Niblack/img4.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img4.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/Niblack/img4.png" alt="Резултат"></td>
   </tr>
 </table>
 <table>
   <tr>
-    <td><img src="/home/kostya/img/dataset/images/img2.png" alt="Оригинал"></td>
-    <td><img src="/home/kostya/img/dataset/pred/Niblack/img2.png" alt="Резултат"></td>
+    <td><img src="dataset/images/img2.png" alt="Оригинал"></td>
+    <td><img src="dataset/pred/Niblack/img2.png" alt="Резултат"></td>
   </tr>
 </table>
 **Локальный Adaptive Multi-scale Niblack метод** учитывает

@@ -86,29 +86,47 @@ def niblack_threshold(img, window_size, k, a=10):
     return mask.astype(np.uint8) * 255
 
 
-def adaptive_niblack_threshold(img, min_window_size=10, max_window_size=500, k=0.2, a=10, scale_factor=0.2):
+def adaptive_niblack_threshold(img, window_size=10, mlt=2.0, k=0.2, a=10, th=5):
     thresholds = []
-    start_img =img
+    start_img = img
     img_shape = img.shape
-    for window_size in range(min_window_size, max_window_size, 100):
+
+    integral_img = np.cumsum(np.cumsum(img, axis=0), axis=1)
+    while window_size <np.min(img_shape):
         threshold = niblack_threshold(img, window_size, k, a)
         thresholds.append(threshold)
-        if np.min(img.shape) * scale_factor < 10:
+
+        height, width = img.shape[:2]
+
+        up_r = np.maximum(np.arange(height) - window_size // 2, 0)
+        dn_r = np.minimum(np.arange(height) + window_size // 2 + 1, height - 1)
+        lf_c = np.maximum(np.arange(width) - window_size // 2, 0)
+        rt_c = np.minimum(np.arange(width) + window_size // 2 + 1, width - 1)
+
+        sum_ = integral_img[dn_r[:, None], rt_c[None, :]] \
+               - integral_img[dn_r[:, None], lf_c[None, :]] \
+               - integral_img[up_r[:, None], rt_c[None, :]] \
+               + integral_img[up_r[:, None], lf_c[None, :]]
+        sum_sq = integral_img[dn_r[:, None], rt_c[None, :]] \
+                 - integral_img[dn_r[:, None], lf_c[None, :]] \
+                 - integral_img[up_r[:, None], rt_c[None, :]] \
+                 + integral_img[up_r[:, None], lf_c[None, :]]
+
+        area = window_size ** 2
+        mean = sum_ / area
+        var = (sum_sq - mean ** 2) / area
+        if np.count_nonzero(th<var)==img.shape[0]*img.shape[1]:
             break
-        #img = cv2.resize(img, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_LINEAR)
-    best_thresholds = np.zeros(img_shape, dtype=np.uint8)
-    best_loss = 0
-    for i in range(len(thresholds)):
-        threshold = thresholds[i]
-        #scaled_threshold = cv2.resize(threshold, (img_shape[1], img_shape[0]), interpolation=cv2.INTER_LINEAR)
-        loss = PSNR(start_img, threshold)
-        if loss > best_loss:
-            best_loss = loss
-            best_thresholds = threshold
-    return best_thresholds
+        else:
+            #print(window_size,mlt)
+            window_size = int(window_size*mlt)
+
+    threshold = mean + k * np.sqrt(var) - a
+    mask = img > threshold
+    return mask.astype(np.uint8) * 255
 
 
-def binarize(image, method, window_size, min_window_size, max_window_size, k, a, scale_factor):
+def binarize(image, method, window_size, scale_factor , k, a,threshold):
     if method == BinarizationMethod.NIBLACK:
         bin_image = niblack_threshold(image, window_size, k, a)
     elif method == BinarizationMethod.OTSU:
@@ -116,7 +134,7 @@ def binarize(image, method, window_size, min_window_size, max_window_size, k, a,
     elif method == BinarizationMethod.OTSU_L:
         bin_image = maximum_likelihood_thresholding(image)
     elif method == BinarizationMethod.NIBLACK_MULTISCALE:
-        bin_image = adaptive_niblack_threshold(image, min_window_size, max_window_size, k, a, scale_factor)
+        bin_image = adaptive_niblack_threshold(image, window_size, scale_factor, k, a, threshold)
     else:
         raise ValueError('Unknown binarization method')
     return bin_image
